@@ -224,8 +224,8 @@ export default function DashboardPage() {
                 {kpis.map((kpi, i) => (
                     <div
                         key={kpi.label}
-                        className="glass-card kpi-card"
-                        style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}
+                        className="glass-card kpi-card animate-slide-up"
+                        style={{ animationDelay: `${i * 0.08}s` }}
                     >
                         <div className="kpi-header">
                             <div className={`kpi-icon ${kpi.iconColor}`}>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Bottom Section: Chart + Semaphore */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+            <div className="bottom-grid">
                 {/* Sales Chart */}
                 <div className="glass-card" style={{ padding: '1.5rem' }}>
                     <div className="section-title">

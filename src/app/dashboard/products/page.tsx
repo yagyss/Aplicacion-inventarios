@@ -167,8 +167,20 @@ export default function ProductsPage() {
                                                 {margin}%
                                             </span>
                                         </td>
-                                        <td>{product.available_colors?.length || 0}</td>
-                                        <td>{product.available_sizes?.length || 0}</td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                {product.available_colors?.length ? product.available_colors.map(c => (
+                                                    <span key={c} className="badge" style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', background: 'var(--color-bg-input)', color: 'var(--color-text-secondary)' }}>{c}</span>
+                                                )) : '—'}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                {product.available_sizes?.length ? product.available_sizes.map(s => (
+                                                    <span key={s} className="badge" style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem', background: 'var(--color-bg-input)', color: 'var(--color-text-secondary)' }}>{s}</span>
+                                                )) : '—'}
+                                            </div>
+                                        </td>
                                         <td>
                                             <div style={{ display: 'flex', gap: '0.25rem' }}>
                                                 <Link

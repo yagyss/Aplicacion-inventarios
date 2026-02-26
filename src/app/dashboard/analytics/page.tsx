@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
                 <>
                     <div className="bento-grid" style={{ marginBottom: '2rem' }}>
                         {metrics.map((m, i) => (
-                            <div key={m.label} className="glass-card kpi-card" style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}>
+                            <div key={m.label} className="glass-card kpi-card animate-slide-up" style={{ animationDelay: `${i * 0.08}s` }}>
                                 <div className="kpi-header">
                                     <div className={`kpi-icon ${m.color}`}><m.icon size={22} /></div>
                                     {m.trend && (
