@@ -13,6 +13,7 @@ import {
     Palette,
     Ruler,
     Package,
+    ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,6 +36,8 @@ export default function NewProductPage() {
     const [stockMatrix, setStockMatrix] = useState<Record<string, Record<string, number>>>({});
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [showColors, setShowColors] = useState(false);
+    const [showSizes, setShowSizes] = useState(false);
     const router = useRouter();
     const supabase = createClient();
 
@@ -163,7 +166,7 @@ export default function NewProductPage() {
 
             {error && <div className="auth-error" style={{ marginBottom: '1.5rem' }}>{error}</div>}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="bottom-grid">
                 {/* Left: Product Info */}
                 <div className="glass-card" style={{ padding: '1.5rem' }}>
                     <h3 className="section-title"><Package size={18} /> Información del Producto</h3>
@@ -177,7 +180,7 @@ export default function NewProductPage() {
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="bottom-grid" style={{ gap: '1rem' }}>
                             <div className="input-group">
                                 <label>Categoría</label>
                                 <input
@@ -197,7 +200,7 @@ export default function NewProductPage() {
                                 />
                             </div>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="bottom-grid" style={{ gap: '1rem' }}>
                             <div className="input-group">
                                 <label>Costo Base ($)</label>
                                 <input
@@ -242,44 +245,74 @@ export default function NewProductPage() {
                 </div>
 
                 {/* Right: Colors & Sizes */}
-                <div className="glass-card" style={{ padding: '1.5rem' }}>
-                    <h3 className="section-title"><Palette size={18} /> Colores</h3>
-                    <div className="chip-group" style={{ marginBottom: '1rem' }}>
-                        {PREDEFINED_COLORS.map(color => (
-                            <button
-                                key={color}
-                                className={`chip ${selectedColors.includes(color) ? 'active' : ''}`}
-                                onClick={() => toggleColor(color)}
-                            >
-                                {color}
-                            </button>
-                        ))}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-                        <input
-                            className="input"
-                            placeholder="Color personalizado"
-                            value={customColor}
-                            onChange={(e) => setCustomColor(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && addCustomColor()}
-                            style={{ flex: 1 }}
-                        />
-                        <button className="btn btn-secondary" onClick={addCustomColor}>
-                            <Plus size={16} />
-                        </button>
+                <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {/* Collapsible Colors */}
+                    <div>
+                        <div
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: showColors ? '1rem' : '0' }}
+                            onClick={() => setShowColors(!showColors)}
+                        >
+                            <h3 className="section-title" style={{ margin: 0 }}><Palette size={18} /> Colores Seleccionados: {selectedColors.length}</h3>
+                            <ChevronDown size={20} style={{ transform: showColors ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: 'var(--color-primary-light)' }} />
+                        </div>
+
+                        {showColors && (
+                            <div className="animate-fade-in">
+                                <div className="chip-group" style={{ marginBottom: '1rem' }}>
+                                    {PREDEFINED_COLORS.map(color => (
+                                        <button
+                                            key={color}
+                                            className={`chip ${selectedColors.includes(color) ? 'active' : ''}`}
+                                            onClick={() => toggleColor(color)}
+                                        >
+                                            {color}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        className="input"
+                                        placeholder="Color personalizado"
+                                        value={customColor}
+                                        onChange={(e) => setCustomColor(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && addCustomColor()}
+                                        style={{ flex: 1 }}
+                                    />
+                                    <button className="btn btn-secondary" onClick={addCustomColor}>
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <h3 className="section-title"><Ruler size={18} /> Tallas</h3>
-                    <div className="chip-group">
-                        {PREDEFINED_SIZES.map(size => (
-                            <button
-                                key={size}
-                                className={`chip ${selectedSizes.includes(size) ? 'active' : ''}`}
-                                onClick={() => toggleSize(size)}
-                            >
-                                {size}
-                            </button>
-                        ))}
+                    <div style={{ height: '1px', background: 'var(--color-border)' }} />
+
+                    {/* Collapsible Sizes */}
+                    <div>
+                        <div
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: showSizes ? '1rem' : '0' }}
+                            onClick={() => setShowSizes(!showSizes)}
+                        >
+                            <h3 className="section-title" style={{ margin: 0 }}><Ruler size={18} /> Tallas Seleccionadas: {selectedSizes.length}</h3>
+                            <ChevronDown size={20} style={{ transform: showSizes ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: 'var(--color-primary-light)' }} />
+                        </div>
+
+                        {showSizes && (
+                            <div className="animate-fade-in">
+                                <div className="chip-group">
+                                    {PREDEFINED_SIZES.map(size => (
+                                        <button
+                                            key={size}
+                                            className={`chip ${selectedSizes.includes(size) ? 'active' : ''}`}
+                                            onClick={() => toggleSize(size)}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -287,13 +320,15 @@ export default function NewProductPage() {
             {/* Size Curve Matrix */}
             {selectedColors.length > 0 && selectedSizes.length > 0 && (
                 <div className="glass-card" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                         <h3 className="section-title" style={{ margin: 0 }}>
                             <Grid3X3 size={18} /> Matriz de Curva de Tallas
                         </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <span className="badge badge-primary">{totalVariants} variantes</span>
-                            <span className="badge badge-success">{totalUnits} unidades</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div>
+                                <span className="badge badge-primary">{totalVariants} variantes</span>
+                                <span className="badge badge-success" style={{ marginLeft: '0.5rem' }}>{totalUnits} unidades</span>
+                            </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button className="btn btn-sm btn-secondary" onClick={() => fillAllStock(5)}>
                                     Llenar 5
