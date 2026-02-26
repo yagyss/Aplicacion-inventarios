@@ -18,30 +18,38 @@ export default function AnalyticsPage() {
 
     const loadAnalytics = async () => {
         setLoading(true);
-        const [salesRes, itemsRes, expensesRes] = await Promise.all([
-            supabase.from('sales').select('total'),
-            supabase.from('sale_items').select('quantity, unit_price, unit_cost'),
-            supabase.from('expenses').select('amount, category'),
-        ]);
+        try {
+            const [salesRes, itemsRes, expensesRes] = await Promise.all([
+                supabase.from('sales').select('total'),
+                supabase.from('sale_items').select('quantity, unit_price, unit_cost'),
+                supabase.from('expenses').select('amount, category'),
+            ]);
 
-        if (salesRes.data) {
-            const total = salesRes.data.reduce((a, s) => a + (s.total || 0), 0);
-            setSalesData(prev => ({ ...prev, total, count: salesRes.data!.length }));
+            if (salesRes.error) console.error('Sales Error:', salesRes.error);
+            if (itemsRes.error) console.error('Items Error:', itemsRes.error);
+            if (expensesRes.error) console.error('Expenses Error:', expensesRes.error);
+
+            if (salesRes.data) {
+                const total = salesRes.data.reduce((a, s) => a + (Number(s.total) || 0), 0);
+                setSalesData(prev => ({ ...prev, total, count: salesRes.data.length }));
+            }
+
+            if (itemsRes.data) {
+                const cost = itemsRes.data.reduce((a, i) => a + (Number(i.unit_cost) || 0) * (Number(i.quantity) || 0), 0);
+                setSalesData(prev => ({ ...prev, cost }));
+            }
+
+            if (expensesRes.data) {
+                const total = expensesRes.data.reduce((a, e) => a + (Number(e.amount) || 0), 0);
+                const ads = expensesRes.data.filter(e => e.category === 'Pauta Digital' || e.category === 'Marketing').reduce((a, e) => a + (Number(e.amount) || 0), 0);
+                setExpensesTotal(total);
+                setAdSpend(ads);
+            }
+        } catch (e) {
+            console.error('Error loading analytics:', e);
+        } finally {
+            setLoading(false);
         }
-
-        if (itemsRes.data) {
-            const cost = itemsRes.data.reduce((a, i) => a + (i.unit_cost || 0) * (i.quantity || 0), 0);
-            setSalesData(prev => ({ ...prev, cost }));
-        }
-
-        if (expensesRes.data) {
-            const total = expensesRes.data.reduce((a, e) => a + (e.amount || 0), 0);
-            const ads = expensesRes.data.filter(e => e.category === 'Pauta Digital').reduce((a, e) => a + (e.amount || 0), 0);
-            setExpensesTotal(total);
-            setAdSpend(ads);
-        }
-
-        setLoading(false);
     };
 
     const revenue = salesData.total;
