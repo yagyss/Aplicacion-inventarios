@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const PREDEFINED_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2', '4', '6', '8', '10', '12', '14', '28', '29', '30', '31', '32', '33', '34', '36'];
+const PREDEFINED_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2', '4', '6', '8', '10', '12', '14', '16', '18', '28', '29', '30', '31', '32', '33', '34', '36', '38'];
 const PREDEFINED_COLORS = [
     'Negro', 'Blanco', 'Rojo', 'Azul', 'Verde', 'Amarillo', 'Rosa',
     'Morado', 'Naranja', 'Gris', 'Beige', 'Marrón', 'Coral', 'Turquesa',
@@ -135,9 +135,10 @@ export default function NewProductPage() {
             if (variantError) throw variantError;
 
             router.push('/dashboard/products');
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Error al guardar';
-            setError(errorMessage);
+        } catch (err: any) {
+            console.error('Error detallado:', err);
+            const errorMessage = err?.message || err?.error_description || 'Error al guardar';
+            setError(`Error de base de datos: ${errorMessage}`);
         } finally {
             setSaving(false);
         }
