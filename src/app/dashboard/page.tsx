@@ -778,9 +778,9 @@ function Metrics({ products, sales, totalSales, profit }: any) {
         <div className="section-title">🏆 Ranking de ventas</div>
         {topSold.map((p: any, i: number) => (
           <div key={p.id} style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ fontWeight: 800, fontSize: 14 }}><span style={{ color: i === 0 ? C.yellow : C.muted, marginRight: 6 }}>#{i + 1}</span>{p.emoji} {p.name}</span>
-              <span style={{ fontWeight: 900, color: C.green }}>{p.sold}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, position: "relative", zIndex: 2 }}>
+              <span style={{ fontWeight: 800, fontSize: 15, color: C.text }}><span style={{ color: i === 0 ? C.yellow : C.muted, marginRight: 6 }}>#{i + 1}</span>{p.emoji} {p.name}</span>
+              <span style={{ fontWeight: 900, color: C.green, fontSize: 15, flexShrink: 0, marginLeft: 8 }}>{p.sold} vendidos</span>
             </div>
             <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((p.sold / maxSold) * 100)}%`, background: i === 0 ? "linear-gradient(90deg,#FFB800,#FF8C42)" : "linear-gradient(90deg,#00C896,#4A90FF)" }} /></div>
           </div>
@@ -790,7 +790,7 @@ function Metrics({ products, sales, totalSales, profit }: any) {
         <div className="section-title">👟 Por marca</div>
         {Object.entries(byBrand).sort((a: any, b: any) => b[1] - a[1]).map(([brand, sold]) => (
           <div key={brand} style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}><span style={{ fontWeight: 800, fontSize: 14 }}>{brand}</span><span style={{ fontWeight: 900, color: C.blue }}>{sold as number} uds</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5, position: "relative", zIndex: 2 }}><span style={{ fontWeight: 800, fontSize: 15, color: C.text }}>👟 {brand}</span><span style={{ fontWeight: 900, color: C.blue, fontSize: 15, flexShrink: 0, marginLeft: 8 }}>{sold as number} uds</span></div>
             <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((sold as number / maxBrand) * 100)}%`, background: "linear-gradient(90deg,#4A90FF,#8B5CF6)" }} /></div>
           </div>
         ))}
@@ -799,7 +799,7 @@ function Metrics({ products, sales, totalSales, profit }: any) {
         <div className="section-title">🎨 Colores preferidos</div>
         {Object.entries(byColor).sort((a: any, b: any) => b[1] - a[1]).map(([color, sold]) => (
           <div key={color} style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}><span style={{ fontWeight: 800, fontSize: 14 }}>{color}</span><span style={{ fontWeight: 900, color: C.purple }}>{sold as number} uds</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5, position: "relative", zIndex: 2 }}><span style={{ fontWeight: 800, fontSize: 15, color: C.text }}>🎨 {color}</span><span style={{ fontWeight: 900, color: C.purple, fontSize: 15, flexShrink: 0, marginLeft: 8 }}>{sold as number} uds</span></div>
             <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((sold as number / maxColor) * 100)}%`, background: "linear-gradient(90deg,#F472B6,#8B5CF6)" }} /></div>
           </div>
         ))}
