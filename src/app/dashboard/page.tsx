@@ -27,10 +27,12 @@ const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  input, select, textarea { font-family: inherit; }
   .card { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
   .btn-main { background: #00C896; color: white; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: inherit; transition: all 0.15s; }
   .btn-main:active { transform: scale(0.97); opacity: 0.9; }
   .btn-orange { background: #FF8C42; }
+  .btn-blue { background: #4A90FF; }
   .btn-outline { background: #FFFFFF; color: #1A1A2E; border: 2px solid #EAECF5; border-radius: 14px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
   .stk-input { background: #F7F8FC; border: 2px solid #EAECF5; border-radius: 14px; padding: 13px 16px; font-size: 15px; width: 100%; outline: none; font-family: inherit; color: #1A1A2E; transition: border 0.2s; }
   .stk-input:focus { border-color: #00C896; }
@@ -50,9 +52,14 @@ const STYLES = `
   .tab-btn.active { background: #E6FAF5; }
   .bar { height: 8px; background: #EAECF5; border-radius: 8px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
+  .kpi-card { border-radius: 18px; padding: 16px; }
   .section-title { font-weight: 900; font-size: 15px; color: #1A1A2E; margin-bottom: 14px; }
+  .cf-positive { color: #00C896; font-weight: 900; }
+  .cf-negative { color: #FF5A5F; font-weight: 900; }
   .cf-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #EAECF5; font-size: 14px; }
   .cf-row:last-child { border-bottom: none; }
+  .warning-box { background: #FFF0F0; border: 2px solid rgba(255,90,95,0.2); border-radius: 16px; padding: 14px 16px; }
+  .ok-box { background: #E6FAF5; border: 2px solid rgba(0,200,150,0.2); border-radius: 16px; padding: 14px 16px; }
 `;
 
 // ── TYPES ──
@@ -111,7 +118,7 @@ export default function DashboardPage() {
       if (!user) return;
 
       if (user.user_metadata?.business_name) {
-          setUserInitials(user.user_metadata.business_name[0].toUpperCase());
+        setUserInitials(user.user_metadata.business_name[0].toUpperCase());
       }
 
       const [
@@ -429,12 +436,12 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
                 </div>
                 <span className="pill" style={{ background: C.greenLight, color: C.green }}>{p.margin}% margen</span>
               </div>
-               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                   <div style={{ background: C.bg, borderRadius: 12, padding: 10 }}>
-                        <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, marginBottom: 4 }}>ROI</div>
-                        <div style={{ fontSize: 14, fontWeight: 900, color: C.purple }}>{p.roi}%</div>
-                   </div>
-               </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                <div style={{ background: C.bg, borderRadius: 12, padding: 10 }}>
+                  <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, marginBottom: 4 }}>ROI</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: C.purple }}>{p.roi}%</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -442,16 +449,16 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
 
       {activeSection === "indicators" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div className="card" style={{ padding: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>CPA — Costo de Adquisición</div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: C.purple }}>{fmt(cpa)}</div>
-                <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>por cada venta generada</div>
-            </div>
-            <div className="card" style={{ padding: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>Punto de Equilibrio</div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: C.orange }}>{fmt(breakEven)}</div>
-                <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>necesitas vender para no perder</div>
-            </div>
+          <div className="card" style={{ padding: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>CPA — Costo de Adquisición</div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: C.purple }}>{fmt(cpa)}</div>
+            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>por cada venta generada</div>
+          </div>
+          <div className="card" style={{ padding: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>Punto de Equilibrio</div>
+            <div style={{ fontSize: 32, fontWeight: 900, color: C.orange }}>{fmt(breakEven)}</div>
+            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>necesitas vender para no perder</div>
+          </div>
         </div>
       )}
     </div>
@@ -498,8 +505,8 @@ function Inventory({ products, setProducts, lowStock, showToast, setModal }: any
                 <div style={{ fontSize: 24, fontWeight: 900, color: isLow ? C.red : C.text }}>{p.stock}</div>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <button className="stock-btn" onClick={() => {}}>−</button>
-                <button className="stock-btn" onClick={() => {}}>+</button>
+                <button className="stock-btn" onClick={() => { }}>−</button>
+                <button className="stock-btn" onClick={() => { }}>+</button>
               </div>
             </div>
           </div>
@@ -666,24 +673,24 @@ function AddSaleModal({ products, onClose, onSave }: any) {
     if (!p || qty < 1 || p.stock < qty) return;
 
     const { data: sale } = await supabase.from('sales').insert({
-        total: total,
-        channel: method === 'Efectivo' ? 'tienda_fisica' : 'online',
-        user_id: (await supabase.auth.getUser()).data.user?.id
+      total: total,
+      channel: method === 'Efectivo' ? 'tienda_fisica' : 'online',
+      user_id: (await supabase.auth.getUser()).data.user?.id
     }).select().single();
 
     if (sale) {
-        await supabase.from('sale_items').insert({
-            sale_id: sale.id,
-            variant_id: p.id,
-            quantity: qty,
-            unit_price: p.price,
-            unit_cost: p.cost
-        });
+      await supabase.from('sale_items').insert({
+        sale_id: sale.id,
+        variant_id: p.id,
+        quantity: qty,
+        unit_price: p.price,
+        unit_cost: p.cost
+      });
 
-        // Update stock
-        await supabase.from('product_variants').update({
-            stock: p.stock - qty
-        }).eq('id', p.id);
+      // Update stock
+      await supabase.from('product_variants').update({
+        stock: p.stock - qty
+      }).eq('id', p.id);
     }
 
     onSave({ id: Date.now(), productId: pid, qty, total, date: new Date().toISOString().split('T')[0], method });
@@ -696,13 +703,13 @@ function AddSaleModal({ products, onClose, onSave }: any) {
         <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 20 }}>💰 Registrar venta</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <select className="stk-input" value={pid} onChange={e => setPid(e.target.value)}>
-               <option value="">Selecciona producto</option>
-               {products.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.stock})</option>)}
+            <option value="">Selecciona producto</option>
+            {products.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.stock})</option>)}
           </select>
           <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center" }}>
-               <button className="stock-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
-               <span style={{ fontSize: 24, fontWeight: 900 }}>{qty}</span>
-               <button className="stock-btn" onClick={() => setQty(q => q + 1)}>+</button>
+            <button className="stock-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+            <span style={{ fontSize: 24, fontWeight: 900 }}>{qty}</span>
+            <button className="stock-btn" onClick={() => setQty(q => q + 1)}>+</button>
           </div>
           {p && <div style={{ textAlign: "center", color: C.green, fontSize: 24, fontWeight: 900 }}>{fmt(total)}</div>}
         </div>
@@ -722,10 +729,10 @@ function AddExpenseModal({ onClose, onSave }: any) {
   async function save() {
     if (!f.concept || !f.amount) return;
     await supabase.from('expenses').insert({
-        category: f.category,
-        amount: Number(f.amount),
-        description: f.concept,
-        user_id: (await supabase.auth.getUser()).data.user?.id
+      category: f.category,
+      amount: Number(f.amount),
+      description: f.concept,
+      user_id: (await supabase.auth.getUser()).data.user?.id
     });
     onSave();
   }
