@@ -220,7 +220,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", margin: "0 auto", position: "relative", paddingBottom: 90, maxWidth: 1200 }}>
+    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", position: "relative", paddingBottom: 90 }}>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
       {/* HEADER */}
@@ -242,7 +242,7 @@ export default function DashboardPage() {
       </div>
 
       {/* CONTENT */}
-      <div style={{ padding: "20px 16px", maxWidth: 1160, margin: "0 auto" }}>
+      <div style={{ padding: "24px 20px", maxWidth: 1100, margin: "0 auto" }}>
         {tab === "home" && <Home products={products} totalSales={totalSalesCount} totalExpenses={totalExpensesCount} profit={profit} lowStock={lowStock} setTab={setTab} setModal={setModal} />}
         {tab === "inventory" && <Inventory products={products} setProducts={setProducts} lowStock={lowStock} showToast={showToast} setModal={setModal} />}
         {tab === "sales" && <Sales sales={sales} products={products} totalSales={totalSalesCount} setModal={setModal} />}
@@ -252,7 +252,8 @@ export default function DashboardPage() {
       </div>
 
       {/* BOTTOM NAV */}
-      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 1200, background: C.white, borderTop: "1.5px solid " + C.border, padding: "8px 4px 14px", display: "flex", justifyContent: "space-around", zIndex: 60, boxShadow: "0 -2px 12px rgba(0,0,0,0.04)" }}>
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: C.white, borderTop: "1.5px solid " + C.border, padding: "8px 4px 14px", display: "flex", justifyContent: "center", gap: 0, zIndex: 60, boxShadow: "0 -2px 12px rgba(0,0,0,0.04)" }}>
+        <div style={{ display: "flex", justifyContent: "space-around", width: "100%", maxWidth: 600 }}>
         {TABS.map(t => (
           <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
             <span style={{ fontSize: 20 }}>{t.emoji}</span>
