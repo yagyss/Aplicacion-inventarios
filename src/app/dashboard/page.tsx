@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-
-// ── DESIGN TOKENS ──
-const C = {
-  bg: "#F7F8FC", white: "#FFFFFF", text: "#1A1A2E", muted: "#8B8FA8", border: "#EAECF5",
-  green: "#00C896", greenLight: "#E6FAF5", red: "#FF5A5F", redLight: "#FFF0F0",
-  blue: "#4A90FF", blueLight: "#EEF4FF", orange: "#FF8C42", orangeLight: "#FFF4EE",
-  purple: "#8B5CF6", purpleLight: "#F3F0FF", yellow: "#FFB800", yellowLight: "#FFFBEB",
-  teal: "#06B6D4", tealLight: "#E0F7FA",
-};
+import { useTheme } from '@/lib/theme-context';
 
 const TABS = [
   { id: "home", label: "Inicio", emoji: "🏠" },
@@ -26,48 +18,48 @@ const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-  body { background: #F7F8FC !important; }
-  html { background: #F7F8FC !important; }
-  .dashboard-layout { background: #F7F8FC !important; width: 100%; }
+  body { background: var(--bg) !important; color: var(--text) !important; }
+  html { background: var(--bg) !important; color: var(--text) !important; }
+  .dashboard-layout { background: var(--bg) !important; width: 100%; transition: background 0.3s; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   input, select, textarea { font-family: inherit; }
-  .card { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-  .btn-main { background: #00C896; color: white; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: inherit; transition: all 0.15s; }
+  .card { background: var(--white); border-radius: 20px; box-shadow: var(--card-shadow); transition: background 0.3s, box-shadow 0.3s, border-color 0.3s; }
+  .btn-main { background: var(--green); color: #FFF; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: inherit; transition: all 0.15s; }
   .btn-main:active { transform: scale(0.97); opacity: 0.9; }
   .btn-main:hover { opacity: 0.92; }
-  .btn-orange { background: #FF8C42; }
-  .btn-blue { background: #4A90FF; }
-  .btn-outline { background: #FFFFFF; color: #1A1A2E; border: 2px solid #EAECF5; border-radius: 14px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-  .btn-outline:hover { border-color: #00C896; color: #00C896; }
-  .stk-input { background: #F7F8FC; border: 2px solid #EAECF5; border-radius: 14px; padding: 13px 16px; font-size: 15px; width: 100%; outline: none; font-family: inherit; color: #1A1A2E; transition: border 0.2s; }
-  .stk-input:focus { border-color: #00C896; }
+  .btn-orange { background: var(--orange); }
+  .btn-blue { background: var(--blue); }
+  .btn-outline { background: var(--white); color: var(--text); border: 2px solid var(--border); border-radius: 14px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+  .stk-input { background: var(--bg); border: 2px solid var(--border); border-radius: 14px; padding: 13px 16px; font-size: 15px; width: 100%; outline: none; font-family: inherit; color: var(--text); transition: border 0.2s, background 0.3s, color 0.3s; }
+  .stk-input:focus { border-color: var(--green); }
   .pill { display: inline-flex; align-items: center; border-radius: 30px; padding: 5px 14px; font-size: 12px; font-weight: 800; }
-  .row-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1.5px solid #EAECF5; }
+  .row-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1.5px solid var(--border); }
   .row-item:last-child { border-bottom: none; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { background: white; border-radius: 28px 28px 0 0; padding: 28px 20px 40px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-  .handle { width: 40px; height: 4px; background: #EAECF5; border-radius: 2px; margin: 0 auto 24px; }
-  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1A1A2E; color: white; border-radius: 16px; padding: 13px 22px; font-weight: 700; font-size: 14px; z-index: 2000; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: popIn 0.3s ease; }
+  .overlay { position: fixed; inset: 0; background: var(--overlay-bg); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; transition: background 0.3s; }
+  .sheet { background: var(--white); border-radius: 28px 28px 0 0; padding: 28px 20px 40px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; color: var(--text); transition: background 0.3s, color 0.3s; }
+  .handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 24px; }
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); border-radius: 16px; padding: 13px 22px; font-weight: 700; font-size: 14px; z-index: 2000; white-space: nowrap; box-shadow: 0 8px 24px var(--overlay-bg); animation: popIn 0.3s ease; }
   @keyframes popIn { from { transform: translateX(-50%) translateY(10px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
   .icon-box { width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-  .stock-btn { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #EAECF5; background: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #8B8FA8; font-family: inherit; transition: all 0.15s; }
-  .stock-btn:hover { border-color: #00C896; color: #00C896; }
-  .filter-btn { border: 2px solid #EAECF5; background: white; border-radius: 12px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; color: #8B8FA8; transition: all 0.15s; white-space: nowrap; }
-  .filter-btn:hover { border-color: #00C896; color: #00C896; }
-  .filter-btn.active { border-color: #00C896; color: #00C896; background: #E6FAF5; }
-  .tab-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; border-radius: 14px; transition: all 0.2s; }
-  .tab-btn:hover { background: #F7F8FC; }
-  .tab-btn.active { background: #E6FAF5; }
-  .bar { height: 8px; background: #EAECF5; border-radius: 8px; overflow: hidden; }
+  .stock-btn { width: 36px; height: 36px; border-radius: 10px; border: 2px solid var(--border); background: var(--white); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--muted); font-family: inherit; transition: all 0.15s; }
+  .stock-btn:hover { border-color: var(--green); color: var(--green); }
+  .filter-btn { border: 2px solid var(--border); background: var(--white); border-radius: 12px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--muted); transition: all 0.15s; white-space: nowrap; }
+  .filter-btn:hover { border-color: var(--green); color: var(--green); }
+  .filter-btn.active { border-color: var(--green); color: var(--green); background: var(--greenLight); }
+  .tab-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; border-radius: 14px; transition: all 0.2s; color: var(--text); }
+  .tab-btn:hover { background: var(--bg); }
+  .tab-btn.active { background: var(--greenLight); }
+  .bar { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
   .kpi-card { border-radius: 18px; padding: 16px; }
-  .section-title { font-weight: 900; font-size: 15px; color: #1A1A2E; margin-bottom: 14px; }
-  .cf-positive { color: #00C896; font-weight: 900; }
-  .cf-negative { color: #FF5A5F; font-weight: 900; }
-  .cf-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #EAECF5; font-size: 14px; }
+  .section-title { font-weight: 900; font-size: 15px; color: var(--text); margin-bottom: 14px; }
+  .cf-positive { color: var(--green); font-weight: 900; }
+  .cf-negative { color: var(--red); font-weight: 900; }
+  .cf-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .cf-row:last-child { border-bottom: none; }
-  .warning-box { background: #FFF0F0; border: 2px solid rgba(255,90,95,0.2); border-radius: 16px; padding: 14px 16px; }
-  .ok-box { background: #E6FAF5; border: 2px solid rgba(0,200,150,0.2); border-radius: 16px; padding: 14px 16px; }
+  .warning-box { background: var(--redLight); border: 2px solid var(--red); border-radius: 16px; padding: 14px 16px; }
+  .ok-box { background: var(--greenLight); border: 2px solid var(--green); border-radius: 16px; padding: 14px 16px; }
 
   /* ── DESKTOP RESPONSIVE ── */
   @media (min-width: 768px) {
@@ -78,7 +70,7 @@ const STYLES = `
     .tab-btn { padding: 8px 14px; gap: 4px; }
   }
   @media (min-width: 1024px) {
-    .card { border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .card { border-radius: 24px; box-shadow: var(--card-shadow); }
     .sheet { max-width: 640px; }
   }
 `;
@@ -120,6 +112,7 @@ interface Expense {
 }
 
 export default function DashboardPage() {
+  const { C, mode, toggleTheme } = useTheme();
   const [tab, setTab] = useState("home");
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -239,6 +232,12 @@ export default function DashboardPage() {
                 <span>🔴</span><span style={{ fontWeight: 800, fontSize: 13, color: C.red }}>{lowStock.length}</span>
               </button>
             )}
+            <button
+              onClick={toggleTheme}
+              style={{ background: C.bg, border: `2px solid ${C.border}`, borderRadius: "50%", width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18, color: C.text, transition: "transform 0.2s" }}
+            >
+              {mode === 'light' ? '🌙' : '☀️'}
+            </button>
             <div style={{ width: 40, height: 40, background: "linear-gradient(135deg,#00C896,#4A90FF)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "white", fontSize: 17 }}>{userInitials}</div>
           </div>
         </div>
@@ -277,6 +276,7 @@ export default function DashboardPage() {
 // ── SUBCOMPONENTS ──
 
 function Home({ products, totalSales, totalExpenses, profit, lowStock, setTab, setModal }: any) {
+  const { C } = useTheme();
   const top3 = [...products].sort((a, b) => b.sold - a.sold).slice(0, 3);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -342,6 +342,7 @@ function Home({ products, totalSales, totalExpenses, profit, lowStock, setTab, s
 }
 
 function Finance({ products, sales, expenses, totalSales, totalExpenses, profit }: any) {
+  const { C } = useTheme();
   const [activeSection, setActiveSection] = useState("cashflow");
 
   const marketingExpenses = expenses.filter((e: any) => e.category === "Marketing").reduce((a: any, e: any) => a + e.amount, 0);
@@ -626,6 +627,7 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
 }
 
 function Inventory({ products, setProducts, lowStock, showToast, setModal }: any) {
+  const { C } = useTheme();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Todos");
   const brands = ["Todos", ...new Set(products.map((p: any) => p.brand))];
@@ -680,6 +682,7 @@ function Inventory({ products, setProducts, lowStock, showToast, setModal }: any
 }
 
 function Sales({ sales, products, totalSales, setModal }: any) {
+  const { C } = useTheme();
   const byMethod = sales.reduce((acc: any, s: any) => { acc[s.method] = (acc[s.method] || 0) + s.total; return acc; }, {});
   const colors: Record<string, string[]> = { Efectivo: [C.green, C.greenLight], Tarjeta: [C.blue, C.blueLight], Nequi: [C.purple, C.purpleLight], Transferencia: [C.orange, C.orangeLight], Daviplata: [C.red, C.redLight] };
   return (
@@ -716,6 +719,7 @@ function Sales({ sales, products, totalSales, setModal }: any) {
 }
 
 function Expenses({ expenses, setExpenses, totalExpenses, showToast, setModal }: any) {
+  const { C } = useTheme();
   const byCategory = expenses.reduce((acc: any, e: any) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, {});
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -750,6 +754,7 @@ function Expenses({ expenses, setExpenses, totalExpenses, showToast, setModal }:
 }
 
 function Metrics({ products, sales, totalSales, profit }: any) {
+  const { C } = useTheme();
   const topSold = [...products].sort((a: any, b: any) => b.sold - a.sold);
   const byBrand = products.reduce((acc: any, p: any) => { if (!acc[p.brand]) acc[p.brand] = 0; acc[p.brand] += p.sold; return acc; }, {});
   const byColor = products.reduce((acc: any, p: any) => { if (!acc[p.color]) acc[p.color] = 0; acc[p.color] += p.sold; return acc; }, {});
@@ -828,6 +833,7 @@ function Metrics({ products, sales, totalSales, profit }: any) {
 // ── MODALS ──
 
 function AddProductModal({ onClose, onSave }: any) {
+  const { C } = useTheme();
   const [f, setF] = useState({ name: "", sku: "", brand: "", color: "", size: "", stock: "", minStock: "5", price: "", cost: "", category: "Ropa" });
   const supabase = createClient();
 
@@ -884,6 +890,7 @@ function AddProductModal({ onClose, onSave }: any) {
 }
 
 function AddSaleModal({ products, onClose, onSave }: any) {
+  const { C } = useTheme();
   const [pid, setPid] = useState("");
   const [qty, setQty] = useState(1);
   const [method, setMethod] = useState("Efectivo");
@@ -958,6 +965,7 @@ function AddSaleModal({ products, onClose, onSave }: any) {
 }
 
 function AddExpenseModal({ onClose, onSave }: any) {
+  const { C } = useTheme();
   const [f, setF] = useState({ concept: "", amount: "", category: "Operacional" });
   const catEmojis: Record<string, string> = { Operacional: "🏪", Compras: "🛍️", Marketing: "📱", Logística: "🚚", Otro: "💡" };
   const supabase = createClient();
