@@ -66,72 +66,76 @@ export default function DashboardLayout({
     return (
         <div className="dashboard-layout">
             {/* Sidebar - Desktop */}
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-logo">
-                    <TrendingUp size={28} style={{ color: 'var(--color-primary-light)' }} />
-                    <h2>Stokly</h2>
-                </div>
-
-                <nav className="sidebar-nav">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`sidebar-link ${isActive(item.href) ? 'active' : ''}`}
-                            onClick={() => setSidebarOpen(false)}
-                        >
-                            <item.icon size={20} />
-                            {item.label}
-                        </Link>
-                    ))}
-                </nav>
-
-                <div className="sidebar-user">
-                    <div className="sidebar-user-avatar">{initials}</div>
-                    <div className="sidebar-user-info">
-                        <span>{user?.business_name}</span>
-                        <small>{user?.email}</small>
+            {pathname !== '/dashboard' && (
+                <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                    <div className="sidebar-logo">
+                        <TrendingUp size={28} style={{ color: 'var(--color-primary-light)' }} />
+                        <h2>Stokly</h2>
                     </div>
-                    <button className="btn-ghost" onClick={handleLogout} title="Cerrar sesión">
-                        <LogOut size={18} />
-                    </button>
-                </div>
-            </aside>
+
+                    <nav className="sidebar-nav">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`sidebar-link ${isActive(item.href) ? 'active' : ''}`}
+                                onClick={() => setSidebarOpen(false)}
+                            >
+                                <item.icon size={20} />
+                                {item.label}
+                            </Link>
+                        ))}
+                    </nav>
+
+                    <div className="sidebar-user">
+                        <div className="sidebar-user-avatar">{initials}</div>
+                        <div className="sidebar-user-info">
+                            <span>{user?.business_name}</span>
+                            <small>{user?.email}</small>
+                        </div>
+                        <button className="btn-ghost" onClick={handleLogout} title="Cerrar sesión">
+                            <LogOut size={18} />
+                        </button>
+                    </div>
+                </aside>
 
             {/* Mobile Header */}
-            <header className="mobile-header">
-                <button
-                    className="btn-ghost"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
-                <h2>Stokly</h2>
-                <div className="sidebar-user-avatar" style={{ width: 32, height: 32, fontSize: '0.75rem' }}>
-                    {initials}
-                </div>
-            </header>
+            {pathname !== '/dashboard' && (
+                <header className="mobile-header">
+                    <button
+                        className="btn-ghost"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                    <h2>Stokly</h2>
+                    <div className="sidebar-user-avatar" style={{ width: 32, height: 32, fontSize: '0.75rem' }}>
+                        {initials}
+                    </div>
+                </header>
+            )}
 
-            {/* Main Content */}
-            <main className="main-content">
+            <main className={pathname === '/dashboard' ? '' : 'main-content'}>
                 {children}
             </main>
 
             {/* Mobile Bottom Nav */}
-            <nav className="mobile-nav">
-                <div className="mobile-nav-inner">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`mobile-nav-link ${isActive(item.href) ? 'active' : ''}`}
-                        >
-                            <item.icon size={22} />
-                            {item.label}
-                        </Link>
-                    ))}
-                </div>
-            </nav>
+            {pathname !== '/dashboard' && (
+                <nav className="mobile-nav">
+                    <div className="mobile-nav-inner">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`mobile-nav-link ${isActive(item.href) ? 'active' : ''}`}
+                            >
+                                <item.icon size={22} />
+                                {item.label}
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+            )}
 
             {/* Overlay for mobile sidebar */}
             {sidebarOpen && (
