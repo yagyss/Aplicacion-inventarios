@@ -31,24 +31,29 @@ const STYLES = `
   .card { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
   .btn-main { background: #00C896; color: white; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: inherit; transition: all 0.15s; }
   .btn-main:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-main:hover { opacity: 0.92; }
   .btn-orange { background: #FF8C42; }
   .btn-blue { background: #4A90FF; }
-  .btn-outline { background: #FFFFFF; color: #1A1A2E; border: 2px solid #EAECF5; border-radius: 14px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-outline { background: #FFFFFF; color: #1A1A2E; border: 2px solid #EAECF5; border-radius: 14px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .btn-outline:hover { border-color: #00C896; color: #00C896; }
   .stk-input { background: #F7F8FC; border: 2px solid #EAECF5; border-radius: 14px; padding: 13px 16px; font-size: 15px; width: 100%; outline: none; font-family: inherit; color: #1A1A2E; transition: border 0.2s; }
   .stk-input:focus { border-color: #00C896; }
   .pill { display: inline-flex; align-items: center; border-radius: 30px; padding: 5px 14px; font-size: 12px; font-weight: 800; }
   .row-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1.5px solid #EAECF5; }
   .row-item:last-child { border-bottom: none; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { background: white; border-radius: 28px 28px 0 0; padding: 28px 20px 40px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: white; border-radius: 28px 28px 0 0; padding: 28px 20px 40px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
   .handle { width: 40px; height: 4px; background: #EAECF5; border-radius: 2px; margin: 0 auto 24px; }
   .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1A1A2E; color: white; border-radius: 16px; padding: 13px 22px; font-weight: 700; font-size: 14px; z-index: 2000; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: popIn 0.3s ease; }
   @keyframes popIn { from { transform: translateX(-50%) translateY(10px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
   .icon-box { width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-  .stock-btn { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #EAECF5; background: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #8B8FA8; font-family: inherit; }
+  .stock-btn { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #EAECF5; background: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #8B8FA8; font-family: inherit; transition: all 0.15s; }
+  .stock-btn:hover { border-color: #00C896; color: #00C896; }
   .filter-btn { border: 2px solid #EAECF5; background: white; border-radius: 12px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; color: #8B8FA8; transition: all 0.15s; white-space: nowrap; }
+  .filter-btn:hover { border-color: #00C896; color: #00C896; }
   .filter-btn.active { border-color: #00C896; color: #00C896; background: #E6FAF5; }
   .tab-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; border-radius: 14px; transition: all 0.2s; }
+  .tab-btn:hover { background: #F7F8FC; }
   .tab-btn.active { background: #E6FAF5; }
   .bar { height: 8px; background: #EAECF5; border-radius: 8px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
@@ -60,6 +65,19 @@ const STYLES = `
   .cf-row:last-child { border-bottom: none; }
   .warning-box { background: #FFF0F0; border: 2px solid rgba(255,90,95,0.2); border-radius: 16px; padding: 14px 16px; }
   .ok-box { background: #E6FAF5; border: 2px solid rgba(0,200,150,0.2); border-radius: 16px; padding: 14px 16px; }
+
+  /* ── DESKTOP RESPONSIVE ── */
+  @media (min-width: 768px) {
+    .sheet { border-radius: 24px; align-self: center; margin-bottom: 40px; max-width: 560px; }
+    .overlay { align-items: center; }
+    .stk-input { font-size: 16px; padding: 15px 18px; }
+    .section-title { font-size: 17px; }
+    .tab-btn { padding: 8px 14px; gap: 4px; }
+  }
+  @media (min-width: 1024px) {
+    .card { border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .sheet { max-width: 640px; }
+  }
 `;
 
 // ── TYPES ──
@@ -202,29 +220,29 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", maxWidth: 480, margin: "0 auto", position: "relative", paddingBottom: 90 }}>
+    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", margin: "0 auto", position: "relative", paddingBottom: 90, maxWidth: 1200 }}>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
       {/* HEADER */}
-      <div style={{ background: C.white, padding: "18px 20px 14px", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 1px 0 " + C.border }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: C.white, padding: "18px 20px 14px", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 1160, margin: "0 auto" }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: C.text }}>stokly 📦</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: C.text }}>stokly 📦</div>
             <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>Tu negocio bajo control</div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {lowStock.length > 0 && (
               <button onClick={() => setTab("inventory")} style={{ background: C.redLight, border: "none", borderRadius: 12, padding: "7px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
                 <span>🔴</span><span style={{ fontWeight: 800, fontSize: 13, color: C.red }}>{lowStock.length}</span>
               </button>
             )}
-            <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#00C896,#4A90FF)", borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "white", fontSize: 16 }}>{userInitials}</div>
+            <div style={{ width: 40, height: 40, background: "linear-gradient(135deg,#00C896,#4A90FF)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "white", fontSize: 17 }}>{userInitials}</div>
           </div>
         </div>
       </div>
 
       {/* CONTENT */}
-      <div style={{ padding: "18px 16px" }}>
+      <div style={{ padding: "20px 16px", maxWidth: 1160, margin: "0 auto" }}>
         {tab === "home" && <Home products={products} totalSales={totalSalesCount} totalExpenses={totalExpensesCount} profit={profit} lowStock={lowStock} setTab={setTab} setModal={setModal} />}
         {tab === "inventory" && <Inventory products={products} setProducts={setProducts} lowStock={lowStock} showToast={showToast} setModal={setModal} />}
         {tab === "sales" && <Sales sales={sales} products={products} totalSales={totalSalesCount} setModal={setModal} />}
@@ -234,7 +252,7 @@ export default function DashboardPage() {
       </div>
 
       {/* BOTTOM NAV */}
-      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: C.white, borderTop: "1.5px solid " + C.border, padding: "8px 4px 14px", display: "flex", justifyContent: "space-around", zIndex: 60 }}>
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 1200, background: C.white, borderTop: "1.5px solid " + C.border, padding: "8px 4px 14px", display: "flex", justifyContent: "space-around", zIndex: 60, boxShadow: "0 -2px 12px rgba(0,0,0,0.04)" }}>
         {TABS.map(t => (
           <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
             <span style={{ fontSize: 20 }}>{t.emoji}</span>
