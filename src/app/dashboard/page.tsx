@@ -27,6 +27,8 @@ const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
   body { background: #F7F8FC !important; }
+  html { background: #F7F8FC !important; }
+  .dashboard-layout { background: #F7F8FC !important; width: 100%; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   input, select, textarea { font-family: inherit; }
   .card { background: #FFFFFF; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
