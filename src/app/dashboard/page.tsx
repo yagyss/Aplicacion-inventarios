@@ -244,7 +244,7 @@ export default function DashboardPage() {
       </div>
 
       {modal === "product" && <AddProductModal onClose={() => setModal(null)} onSave={() => { setModal(null); showToast("✅ Producto agregado (Refresca)"); }} />}
-      {modal === "sale" && <AddSaleModal products={products} onClose={() => setModal(null)} onSave={(s) => { setSales(prev => [...prev, s]); setModal(null); showToast("💰 Venta registrada"); }} />}
+      {modal === "sale" && <AddSaleModal products={products} onClose={() => setModal(null)} onSave={(s: any) => { setSales(prev => [...prev, s]); setModal(null); showToast("💰 Venta registrada"); }} />}
       {modal === "expense" && <AddExpenseModal onClose={() => setModal(null)} onSave={() => { setModal(null); showToast("💸 Gasto registrado"); }} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
@@ -407,6 +407,9 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
                     <div style={{ flex: 1, background: C.red, borderRadius: "6px 6px 0 0", height: maxCF > 0 ? `${Math.max(4, (d.salida / maxCF) * 100)}%` : "4px", transition: "height 0.8s ease" }} />
                   </div>
                   <div style={{ fontSize: 11, fontWeight: 800, color: C.muted }}>{d.label}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: d.entrada - d.salida >= 0 ? C.green : C.red }}>
+                    {d.entrada - d.salida >= 0 ? "+" : ""}{fmt(d.entrada - d.salida)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -416,30 +419,79 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
             </div>
           </div>
 
+          {/* Desglose de salidas */}
+          <div className="card" style={{ padding: 18 }}>
+            <div className="section-title">💸 Desglose de salidas</div>
+            {[
+              { label: "Costo de productos (COGS)", value: cogs, color: C.orange },
+              { label: "Gastos operacionales", value: operationalExpenses, color: C.red },
+              { label: "Marketing y publicidad", value: marketingExpenses, color: C.purple },
+              { label: "Compras de inventario", value: purchaseExpenses, color: C.blue },
+            ].map(item => (
+              <div key={item.label} style={{ marginBottom: 14 }}>
+                <div className="cf-row" style={{ borderBottom: "none", padding: "4px 0" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{item.label}</span>
+                  <span style={{ fontWeight: 900, color: item.color }}>{fmt(item.value)}</span>
+                </div>
+                <div className="bar">
+                  <div className="bar-fill" style={{ width: `${pct(item.value, totalSales + cogs)}%`, background: item.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div style={{ background: C.yellowLight, border: "2px solid " + C.yellow + "50", borderRadius: 18, padding: 18 }}>
             <div style={{ fontWeight: 900, fontSize: 14, color: C.text, marginBottom: 6 }}>⚠️ Capital inmovilizado en inventario</div>
             <div style={{ fontSize: 30, fontWeight: 900, color: C.yellow, marginBottom: 6 }}>{fmt(frozenCapital)}</div>
-            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>Es dinero que tienes invertido en productos sin vender.</div>
+            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>Es dinero que tienes invertido en productos sin vender. Mucho inventario = menos liquidez.</div>
           </div>
         </div>
       )}
 
       {activeSection === "profitability" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: "linear-gradient(135deg,#8B5CF6,#4A90FF)", borderRadius: 22, padding: 20, color: "white" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.85, marginBottom: 2 }}>Ganancia bruta total</div>
+            <div style={{ fontSize: 34, fontWeight: 900, marginBottom: 4 }}>{fmt(grossProfit)}</div>
+            <div style={{ fontSize: 13, opacity: 0.85 }}>Margen bruto: {grossMargin}% · Margen neto: {netMargin}%</div>
+          </div>
+
           {productProfitability.map((p: any) => (
             <div key={p.id} className="card" style={{ padding: 16 }}>
               <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 12 }}>
-                <div className="icon-box" style={{ background: C.greenLight }}>{p.emoji}</div>
+                <div className="icon-box" style={{ background: p.grossP > 0 ? C.greenLight : C.redLight }}>{p.emoji}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 900, fontSize: 15 }}>{p.name}</div>
                   <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{p.brand} · {p.color} / {p.size}</div>
                 </div>
-                <span className="pill" style={{ background: C.greenLight, color: C.green }}>{p.margin}% margen</span>
+                <span className="pill" style={{ background: p.margin > 40 ? C.greenLight : p.margin > 20 ? C.yellowLight : C.redLight, color: p.margin > 40 ? C.green : p.margin > 20 ? C.yellow : C.red }}>
+                  {p.margin}% margen
+                </span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                <div style={{ background: C.bg, borderRadius: 12, padding: 10 }}>
-                  <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, marginBottom: 4 }}>ROI</div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: C.purple }}>{p.roi}%</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+                {[
+                  { label: "Ingresos", value: fmt(p.revenue), color: C.blue },
+                  { label: "Costo", value: fmt(p.cog), color: C.orange },
+                  { label: "Ganancia bruta", value: fmt(p.grossP), color: p.grossP > 0 ? C.green : C.red },
+                ].map(k => (
+                  <div key={k.label} style={{ background: C.bg, borderRadius: 12, padding: "10px 12px" }}>
+                    <div style={{ fontSize: 10, color: C.muted, fontWeight: 700, marginBottom: 4, textTransform: "uppercase" }}>{k.label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: k.color }}>{k.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div style={{ background: C.purpleLight, borderRadius: 12, padding: "10px 12px" }}>
+                  <div style={{ fontSize: 10, color: C.purple, fontWeight: 700, marginBottom: 3 }}>ROI</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: C.purple }}>{p.roi}%</div>
+                  <div style={{ fontSize: 11, color: C.muted }}>por cada peso invertido</div>
+                </div>
+                <div style={{ background: C.tealLight, borderRadius: 12, padding: "10px 12px" }}>
+                  <div style={{ fontSize: 10, color: C.teal, fontWeight: 700, marginBottom: 3 }}>GANANCIA/UNIDAD</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: C.teal }}>{fmt(p.price - p.cost)}</div>
+                  <div style={{ fontSize: 11, color: C.muted }}>por unidad vendida</div>
                 </div>
               </div>
             </div>
@@ -449,15 +501,100 @@ function Finance({ products, sales, expenses, totalSales, totalExpenses, profit 
 
       {activeSection === "indicators" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* CPA */}
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>CPA — Costo de Adquisición</div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: C.purple }}>{fmt(cpa)}</div>
-            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>por cada venta generada</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>CPA — Costo de Adquisición</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: C.purple }}>{fmt(cpa)}</div>
+                <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>por cada venta generada</div>
+              </div>
+              <div style={{ background: C.purpleLight, borderRadius: 14, padding: "10px 14px", textAlign: "center" }}>
+                <div style={{ fontSize: 24 }}>🎯</div>
+              </div>
+            </div>
+            <div style={{ background: C.bg, borderRadius: 12, padding: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, marginBottom: 8 }}>¿Qué significa?</div>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Gastas en marketing</span><span style={{ fontWeight: 900, color: C.purple }}>{fmt(marketingExpenses)}</span></div>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Número de ventas</span><span style={{ fontWeight: 900 }}>{totalTransactions}</span></div>
+              <div className="cf-row" style={{ borderBottom: "none" }}><span style={{ fontSize: 13, fontWeight: 800 }}>Te cuesta conseguir cada venta</span><span style={{ fontWeight: 900, color: C.purple }}>{fmt(cpa)}</span></div>
+            </div>
+            <div style={{ marginTop: 12, ...(cpa < 30000 ? { background: C.greenLight, border: "2px solid rgba(0,200,150,0.2)", borderRadius: 12, padding: 12 } : { background: C.yellowLight, border: "2px solid rgba(255,184,0,0.2)", borderRadius: 12, padding: 12 }) }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: cpa < 30000 ? C.green : C.yellow }}>
+                {cpa < 30000 ? "✅ CPA saludable — tu marketing es eficiente" : "⚠️ CPA alto — evalúa reducir gastos de marketing o aumentar ventas"}
+              </div>
+            </div>
           </div>
+
+          {/* Punto de equilibrio */}
           <div className="card" style={{ padding: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>Punto de Equilibrio</div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: C.orange }}>{fmt(breakEven)}</div>
-            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>necesitas vender para no perder</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", marginBottom: 4 }}>Punto de Equilibrio</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: C.orange }}>{fmt(breakEven)}</div>
+                <div style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>necesitas vender al mes para no perder</div>
+              </div>
+              <div style={{ background: C.orangeLight, borderRadius: 14, padding: "10px 14px" }}><div style={{ fontSize: 24 }}>⚖️</div></div>
+            </div>
+            <div style={{ background: C.bg, borderRadius: 12, padding: 14 }}>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Costos fijos mensuales</span><span style={{ fontWeight: 900, color: C.orange }}>{fmt(fixedCosts)}</span></div>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Margen bruto actual</span><span style={{ fontWeight: 900 }}>{grossMargin}%</span></div>
+              <div className="cf-row" style={{ borderBottom: "none" }}><span style={{ fontSize: 13, fontWeight: 800 }}>Ya vendiste este mes</span><span style={{ fontWeight: 900, color: totalSales >= breakEven ? C.green : C.red }}>{fmt(totalSales)}</span></div>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>Progreso al punto de equilibrio</span>
+                <span style={{ fontSize: 12, fontWeight: 900, color: totalSales >= breakEven ? C.green : C.orange }}>{Math.min(100, pct(totalSales, breakEven))}%</span>
+              </div>
+              <div className="bar" style={{ height: 12 }}>
+                <div className="bar-fill" style={{ width: `${Math.min(100, pct(totalSales, breakEven))}%`, background: totalSales >= breakEven ? C.green : "linear-gradient(90deg,#FF8C42,#FFB800)" }} />
+              </div>
+              {totalSales >= breakEven
+                ? <div style={{ marginTop: 10, background: C.greenLight, border: "2px solid rgba(0,200,150,0.2)", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 700, color: C.green }}>✅ Superaste el punto de equilibrio. Estás ganando.</div>
+                : <div style={{ marginTop: 10, background: C.yellowLight, border: "2px solid rgba(255,184,0,0.2)", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 700, color: C.yellow }}>⚠️ Faltan {fmt(breakEven - totalSales)} para cubrir tus costos fijos.</div>
+              }
+            </div>
+          </div>
+
+          {/* Márgenes reales */}
+          <div className="card" style={{ padding: 20 }}>
+            <div className="section-title">📊 Márgenes reales</div>
+            {[
+              { label: "Margen Bruto", desc: "Ventas menos costo de productos", value: grossMargin, amount: grossProfit, color: C.green },
+              { label: "Margen Neto", desc: "Lo que realmente queda en tu bolsillo", value: netMargin, amount: profit, color: netMargin > 0 ? C.teal : C.red },
+            ].map(m => (
+              <div key={m.label} style={{ marginBottom: 18 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <div><div style={{ fontWeight: 800, fontSize: 14 }}>{m.label}</div><div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{m.desc}</div></div>
+                  <div style={{ textAlign: "right" }}><div style={{ fontWeight: 900, fontSize: 20, color: m.color }}>{m.value}%</div><div style={{ fontSize: 12, fontWeight: 700, color: m.color }}>{fmt(m.amount)}</div></div>
+                </div>
+                <div className="bar" style={{ height: 10 }}><div className="bar-fill" style={{ width: `${Math.max(0, Math.min(100, m.value))}%`, background: m.color }} /></div>
+              </div>
+            ))}
+            <div style={{ background: C.bg, borderRadius: 14, padding: 14, marginTop: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 10, textTransform: "uppercase" }}>¿Cómo estás vs. la industria?</div>
+              {[
+                { label: "Tu margen bruto", value: `${grossMargin}%`, status: grossMargin > 40 ? "🟢 Excelente" : grossMargin > 25 ? "🟡 Normal" : "🔴 Bajo" },
+                { label: "Tu margen neto", value: `${netMargin}%`, status: netMargin > 15 ? "🟢 Excelente" : netMargin > 5 ? "🟡 Normal" : "🔴 Bajo" },
+                { label: "Referencia industria retail", value: "5%-20% neto", status: "ℹ️ Estándar" },
+              ].map(r => (
+                <div key={r.label} className="cf-row"><span style={{ fontSize: 13, fontWeight: 700 }}>{r.label}</span><div style={{ textAlign: "right" }}><div style={{ fontSize: 13, fontWeight: 900 }}>{r.value}</div><div style={{ fontSize: 11, color: C.muted }}>{r.status}</div></div></div>
+              ))}
+            </div>
+          </div>
+
+          {/* ROI general */}
+          <div className="card" style={{ padding: 20 }}>
+            <div className="section-title">💹 ROI del negocio</div>
+            <div style={{ textAlign: "center", padding: "10px 0 20px" }}>
+              <div style={{ fontSize: 52, fontWeight: 900, color: profit > 0 ? C.green : C.red }}>{pct(profit, totalExpenses)}%</div>
+              <div style={{ fontSize: 14, color: C.muted, fontWeight: 700 }}>retorno sobre lo que invertiste</div>
+            </div>
+            <div style={{ background: C.bg, borderRadius: 14, padding: 14 }}>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Total invertido (gastos)</span><span style={{ fontWeight: 900, color: C.orange }}>{fmt(totalExpenses)}</span></div>
+              <div className="cf-row"><span style={{ fontSize: 13 }}>Total recuperado (ventas)</span><span style={{ fontWeight: 900, color: C.green }}>{fmt(totalSales)}</span></div>
+              <div className="cf-row" style={{ borderBottom: "none" }}><span style={{ fontSize: 13, fontWeight: 800 }}>Ganancia neta</span><span style={{ fontWeight: 900, color: profit > 0 ? C.green : C.red }}>{fmt(profit)}</span></div>
+            </div>
           </div>
         </div>
       )}
@@ -489,34 +626,39 @@ function Inventory({ products, setProducts, lowStock, showToast, setModal }: any
         return (
           <div key={p.id} className="card" style={{ padding: 16, border: `2px solid ${isLow ? C.red + "40" : "transparent"}` }}>
             <div style={{ display: "flex", gap: 12 }}>
-              <div className="icon-box" style={{ background: isLow ? C.redLight : C.greenLight }}>{isLow ? "⚠️" : p.emoji}</div>
+              <div className="icon-box" style={{ background: isLow ? C.redLight : C.greenLight }}>{p.emoji}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 900, fontSize: 15 }}>{p.name}</div>
                 <div style={{ fontSize: 12, color: C.muted, fontWeight: 600, marginBottom: 8 }}>{p.brand} · {p.color} · T{p.size}</div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   <span className="pill" style={{ background: C.blueLight, color: C.blue }}>{p.sku}</span>
+                  <span className="pill" style={{ background: margin > 40 ? C.greenLight : C.yellowLight, color: margin > 40 ? C.green : C.yellow }}>Margen {margin}%</span>
                   <span className="pill" style={{ background: C.purpleLight, color: C.purple }}>{fmt(p.price)}</span>
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1.5px solid " + C.border }}>
               <div>
-                <div style={{ fontSize: 11, color: C.muted, fontWeight: 700 }}>STOCK</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: isLow ? C.red : C.text }}>{p.stock}</div>
+                <div style={{ fontSize: 11, color: C.muted, fontWeight: 700 }}>STOCK {isLow ? "⚠️" : "✅"}</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: isLow ? C.red : C.text }}>{p.stock} <span style={{ fontSize: 12, color: C.muted }}>/ mín {p.minStock}</span></div>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <button className="stock-btn" onClick={() => { }}>−</button>
                 <button className="stock-btn" onClick={() => { }}>+</button>
+                <button onClick={() => { setProducts((prev: any) => prev.filter((x: any) => x.id !== p.id)); showToast("🗑️ Eliminado"); }} style={{ background: C.redLight, border: "none", borderRadius: 10, padding: "8px 12px", cursor: "pointer", fontWeight: 800, fontSize: 13, color: C.red, fontFamily: "inherit" }}>Borrar</button>
               </div>
             </div>
           </div>
         );
       })}
+      {filtered.length === 0 && <div style={{ textAlign: "center", padding: 40, color: C.muted, fontWeight: 700 }}>No encontrado 🔍</div>}
     </div>
   );
 }
 
 function Sales({ sales, products, totalSales, setModal }: any) {
+  const byMethod = sales.reduce((acc: any, s: any) => { acc[s.method] = (acc[s.method] || 0) + s.total; return acc; }, {});
+  const colors: Record<string, string[]> = { Efectivo: [C.green, C.greenLight], Tarjeta: [C.blue, C.blueLight], Nequi: [C.purple, C.purpleLight], Transferencia: [C.orange, C.orangeLight], Daviplata: [C.red, C.redLight] };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -526,6 +668,12 @@ function Sales({ sales, products, totalSales, setModal }: any) {
       <div style={{ background: "linear-gradient(135deg,#00C896,#4A90FF)", borderRadius: 20, padding: 20, color: "white" }}>
         <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.85 }}>Total del mes</div>
         <div style={{ fontSize: 34, fontWeight: 900 }}>{fmt(totalSales)}</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {Object.entries(byMethod).map(([m, total]) => {
+          const [color] = colors[m] || [C.muted, C.bg];
+          return <div key={m} className="card" style={{ padding: 16 }}><div style={{ fontSize: 13, fontWeight: 800, color, marginBottom: 4 }}>{m}</div><div style={{ fontSize: 20, fontWeight: 900 }}>{fmt(total as number)}</div></div>;
+        })}
       </div>
       <div className="card" style={{ padding: 18 }}>
         <div className="section-title">Historial</div>
@@ -545,6 +693,7 @@ function Sales({ sales, products, totalSales, setModal }: any) {
 }
 
 function Expenses({ expenses, setExpenses, totalExpenses, showToast, setModal }: any) {
+  const byCategory = expenses.reduce((acc: any, e: any) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, {});
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -555,13 +704,21 @@ function Expenses({ expenses, setExpenses, totalExpenses, showToast, setModal }:
         <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.85 }}>Total gastos del mes</div>
         <div style={{ fontSize: 34, fontWeight: 900 }}>{fmt(totalExpenses)}</div>
       </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {Object.entries(byCategory).map(([cat, amount]) => (
+          <div key={cat} className="card" style={{ padding: 16 }}><div style={{ fontSize: 13, fontWeight: 800, color: C.orange, marginBottom: 4 }}>{cat}</div><div style={{ fontSize: 20, fontWeight: 900 }}>{fmt(amount as number)}</div></div>
+        ))}
+      </div>
       <div className="card" style={{ padding: 18 }}>
         <div className="section-title">Historial</div>
         {[...expenses].reverse().map((e: any) => (
           <div key={e.id} className="row-item">
             <div className="icon-box" style={{ background: C.orangeLight }}>{e.emoji}</div>
             <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>{e.concept}</div><div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>{e.date} · {e.category}</div></div>
-            <div style={{ fontWeight: 900, fontSize: 16, color: C.red }}>{fmt(e.amount)}</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+              <div style={{ fontWeight: 900, fontSize: 16, color: C.red }}>{fmt(e.amount)}</div>
+              <button onClick={() => { setExpenses((prev: any) => prev.filter((x: any) => x.id !== e.id)); showToast("🗑️ Eliminado"); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", fontWeight: 700, fontFamily: "inherit" }}>Borrar</button>
+            </div>
           </div>
         ))}
       </div>
@@ -570,8 +727,13 @@ function Expenses({ expenses, setExpenses, totalExpenses, showToast, setModal }:
 }
 
 function Metrics({ products, sales, totalSales, profit }: any) {
-  const topSold = [...products].sort((a, b) => b.sold - a.sold);
+  const topSold = [...products].sort((a: any, b: any) => b.sold - a.sold);
+  const byBrand = products.reduce((acc: any, p: any) => { if (!acc[p.brand]) acc[p.brand] = 0; acc[p.brand] += p.sold; return acc; }, {});
+  const byColor = products.reduce((acc: any, p: any) => { if (!acc[p.color]) acc[p.color] = 0; acc[p.color] += p.sold; return acc; }, {});
   const maxSold = topSold[0]?.sold || 1;
+  const maxBrand = Math.max(...Object.values(byBrand).map(Number));
+  const maxColor = Math.max(...Object.values(byColor).map(Number));
+  const toBuy = products.filter((p: any) => p.stock < p.minStock * 2).sort((a: any, b: any) => b.sold - a.sold);
   const margin = totalSales ? pct(profit, totalSales) : 0;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -579,8 +741,10 @@ function Metrics({ products, sales, totalSales, profit }: any) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {[
           { label: "Margen neto", value: `${margin}%`, color: margin > 30 ? C.green : C.orange, bg: margin > 30 ? C.greenLight : C.orangeLight },
+          { label: "Ticket prom.", value: fmt(sales.length ? Math.round(totalSales / sales.length) : 0), color: C.blue, bg: C.blueLight },
           { label: "Más vendido", value: topSold[0]?.name.split(" ")[0] || "—", color: C.yellow, bg: C.yellowLight },
-        ].map(k => (
+          { label: "Referencias", value: products.length, color: C.purple, bg: C.purpleLight },
+        ].map((k: any) => (
           <div key={k.label} className="card" style={{ padding: 16, background: k.bg }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: k.color, marginBottom: 6, textTransform: "uppercase" }}>{k.label}</div>
             <div style={{ fontSize: 22, fontWeight: 900, color: C.text }}>{k.value}</div>
@@ -589,16 +753,51 @@ function Metrics({ products, sales, totalSales, profit }: any) {
       </div>
       <div className="card" style={{ padding: 18 }}>
         <div className="section-title">🏆 Ranking de ventas</div>
-        {topSold.slice(0, 5).map((p, i) => (
+        {topSold.map((p: any, i: number) => (
           <div key={p.id} style={{ marginBottom: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ fontWeight: 800, fontSize: 14 }}>#{i + 1} {p.name}</span>
+              <span style={{ fontWeight: 800, fontSize: 14 }}><span style={{ color: i === 0 ? C.yellow : C.muted, marginRight: 6 }}>#{i + 1}</span>{p.emoji} {p.name}</span>
               <span style={{ fontWeight: 900, color: C.green }}>{p.sold}</span>
             </div>
-            <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((p.sold / maxSold) * 100)}%`, background: C.green }} /></div>
+            <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((p.sold / maxSold) * 100)}%`, background: i === 0 ? "linear-gradient(90deg,#FFB800,#FF8C42)" : "linear-gradient(90deg,#00C896,#4A90FF)" }} /></div>
           </div>
         ))}
       </div>
+      <div className="card" style={{ padding: 18 }}>
+        <div className="section-title">👟 Por marca</div>
+        {Object.entries(byBrand).sort((a: any, b: any) => b[1] - a[1]).map(([brand, sold]) => (
+          <div key={brand} style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}><span style={{ fontWeight: 800, fontSize: 14 }}>{brand}</span><span style={{ fontWeight: 900, color: C.blue }}>{sold as number} uds</span></div>
+            <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((sold as number / maxBrand) * 100)}%`, background: "linear-gradient(90deg,#4A90FF,#8B5CF6)" }} /></div>
+          </div>
+        ))}
+      </div>
+      <div className="card" style={{ padding: 18 }}>
+        <div className="section-title">🎨 Colores preferidos</div>
+        {Object.entries(byColor).sort((a: any, b: any) => b[1] - a[1]).map(([color, sold]) => (
+          <div key={color} style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}><span style={{ fontWeight: 800, fontSize: 14 }}>{color}</span><span style={{ fontWeight: 900, color: C.purple }}>{sold as number} uds</span></div>
+            <div className="bar"><div className="bar-fill" style={{ width: `${Math.round((sold as number / maxColor) * 100)}%`, background: "linear-gradient(90deg,#F472B6,#8B5CF6)" }} /></div>
+          </div>
+        ))}
+      </div>
+      {toBuy.length > 0 && (
+        <div className="card" style={{ padding: 18, border: "2px solid " + C.yellow + "50" }}>
+          <div className="section-title">🛒 Qué deberías comprar</div>
+          {toBuy.map((p: any) => {
+            const qty = Math.max(p.minStock * 3, 10);
+            return (
+              <div key={p.id} style={{ background: C.yellowLight, borderRadius: 16, padding: "14px 16px", marginBottom: 10 }}>
+                <div style={{ fontWeight: 900, fontSize: 15 }}>{p.emoji} {p.name} <span style={{ color: C.muted, fontWeight: 600 }}>· {p.color}/{p.size}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, flexWrap: "wrap", gap: 4 }}>
+                  <span style={{ fontSize: 13, color: C.muted, fontWeight: 700 }}>Stock: <span style={{ color: C.red }}>{p.stock}</span></span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: C.yellow }}>Comprar {qty} → {fmt(qty * p.cost)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -687,7 +886,6 @@ function AddSaleModal({ products, onClose, onSave }: any) {
         unit_cost: p.cost
       });
 
-      // Update stock
       await supabase.from('product_variants').update({
         stock: p.stock - qty
       }).eq('id', p.id);
@@ -702,20 +900,34 @@ function AddSaleModal({ products, onClose, onSave }: any) {
         <div className="handle" />
         <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 20 }}>💰 Registrar venta</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <select className="stk-input" value={pid} onChange={e => setPid(e.target.value)}>
-            <option value="">Selecciona producto</option>
-            {products.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({p.stock})</option>)}
-          </select>
-          <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center" }}>
-            <button className="stock-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
-            <span style={{ fontSize: 24, fontWeight: 900 }}>{qty}</span>
-            <button className="stock-btn" onClick={() => setQty(q => q + 1)}>+</button>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 5, textTransform: "uppercase" }}>Producto</div>
+            <select className="stk-input" value={pid} onChange={e => setPid(e.target.value)}>
+              <option value="">Selecciona un producto</option>
+              {products.filter((p: any) => p.stock > 0).map((p: any) => <option key={p.id} value={p.id}>{p.emoji} {p.name} — {p.color}/{p.size} ({p.stock} disp.) — {fmt(p.price)}</option>)}
+            </select>
           </div>
-          {p && <div style={{ textAlign: "center", color: C.green, fontSize: 24, fontWeight: 900 }}>{fmt(total)}</div>}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 8, textTransform: "uppercase" }}>Cantidad</div>
+            <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "center" }}>
+              <button className="stock-btn" style={{ width: 48, height: 48, fontSize: 24 }} onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+              <span style={{ fontSize: 36, fontWeight: 900, minWidth: 50, textAlign: "center" }}>{qty}</span>
+              <button className="stock-btn" style={{ width: 48, height: 48, fontSize: 24 }} onClick={() => setQty(q => Math.min(p?.stock || 99, q + 1))}>+</button>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 8, textTransform: "uppercase" }}>Método de pago</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Efectivo", "Tarjeta", "Nequi", "Transferencia", "Daviplata"].map(m => (
+                <button key={m} className={`filter-btn ${method === m ? "active" : ""}`} onClick={() => setMethod(m)}>{m}</button>
+              ))}
+            </div>
+          </div>
+          {p && <div style={{ background: C.greenLight, borderRadius: 16, padding: "16px 20px", textAlign: "center" }}><div style={{ fontSize: 13, color: C.muted, fontWeight: 700 }}>Total a cobrar</div><div style={{ fontSize: 36, fontWeight: 900, color: C.green }}>{fmt(total)}</div></div>}
         </div>
         <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
           <button className="btn-outline" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
-          <button className="btn-main" onClick={save} style={{ flex: 2 }}>Confirmar</button>
+          <button className="btn-main" onClick={save} style={{ flex: 2 }}>Confirmar venta</button>
         </div>
       </div>
     </div>
@@ -724,6 +936,7 @@ function AddSaleModal({ products, onClose, onSave }: any) {
 
 function AddExpenseModal({ onClose, onSave }: any) {
   const [f, setF] = useState({ concept: "", amount: "", category: "Operacional" });
+  const catEmojis: Record<string, string> = { Operacional: "🏪", Compras: "🛍️", Marketing: "📱", Logística: "🚚", Otro: "💡" };
   const supabase = createClient();
 
   async function save() {
@@ -742,11 +955,27 @@ function AddExpenseModal({ onClose, onSave }: any) {
       <div className="sheet">
         <div className="handle" />
         <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 20 }}>💸 Registrar gasto</div>
-        <input className="stk-input" placeholder="Concepto" value={f.concept} onChange={e => setF(p => ({ ...p, concept: e.target.value }))} style={{ marginBottom: 12 }} />
-        <input className="stk-input" placeholder="Monto" type="number" value={f.amount} onChange={e => setF(p => ({ ...p, amount: e.target.value }))} style={{ marginBottom: 12 }} />
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 5, textTransform: "uppercase" }}>Concepto</div>
+            <input className="stk-input" placeholder="Ej: Arriendo del mes" value={f.concept} onChange={e => setF(p => ({ ...p, concept: e.target.value }))} />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 5, textTransform: "uppercase" }}>Monto ($)</div>
+            <input className="stk-input" type="number" placeholder="0" value={f.amount} onChange={e => setF(p => ({ ...p, amount: e.target.value }))} />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, marginBottom: 8, textTransform: "uppercase" }}>Categoría</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Operacional", "Compras", "Marketing", "Logística", "Otro"].map(c => (
+                <button key={c} className={`filter-btn ${f.category === c ? "active" : ""}`} onClick={() => setF(p => ({ ...p, category: c }))}>{catEmojis[c]} {c}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
           <button className="btn-outline" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
-          <button className="btn-main btn-orange" onClick={save} style={{ flex: 2 }}>Guardar</button>
+          <button className="btn-main btn-orange" onClick={save} style={{ flex: 2 }}>Guardar gasto</button>
         </div>
       </div>
     </div>
