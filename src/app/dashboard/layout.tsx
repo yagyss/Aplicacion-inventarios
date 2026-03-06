@@ -116,7 +116,7 @@ export default function DashboardLayout({
                 </header>
             )}
 
-            <main className={pathname === '/dashboard' ? '' : 'main-content'}>
+            <main className={pathname === '/dashboard' ? '' : 'main-content'} style={pathname === '/dashboard' ? { width: '100%', flex: 1 } : undefined}>
                 {children}
             </main>
 

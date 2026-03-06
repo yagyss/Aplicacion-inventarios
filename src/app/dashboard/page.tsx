@@ -223,7 +223,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", position: "relative", paddingBottom: 90 }}>
+    <div style={{ fontFamily: "'Nunito','Segoe UI',sans-serif", background: C.bg, minHeight: "100vh", width: "100%", position: "relative", paddingBottom: 90 }}>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
       {/* HEADER */}
