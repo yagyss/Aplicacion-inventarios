@@ -4,12 +4,10 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 export type ThemeMode = 'light' | 'dark';
 
-interface ThemeColors {
+export interface ThemeColors {
     bg: string;
-    bgSecondary: string;
     white: string;
     text: string;
-    textSecondary: string;
     muted: string;
     border: string;
     green: string;
@@ -26,19 +24,12 @@ interface ThemeColors {
     yellowLight: string;
     teal: string;
     tealLight: string;
-    cardShadow: string;
-    overlayBg: string;
-    inputBg: string;
-    toastBg: string;
-    toastText: string;
 }
 
 const LIGHT: ThemeColors = {
     bg: "#F7F8FC",
-    bgSecondary: "#EAECF5",
     white: "#FFFFFF",
     text: "#1A1A2E",
-    textSecondary: "#2D2D44",
     muted: "#8B8FA8",
     border: "#EAECF5",
     green: "#00C896",
@@ -55,19 +46,12 @@ const LIGHT: ThemeColors = {
     yellowLight: "#FFFBEB",
     teal: "#06B6D4",
     tealLight: "#E0F7FA",
-    cardShadow: "0 2px 12px rgba(0,0,0,0.06)",
-    overlayBg: "rgba(0,0,0,0.4)",
-    inputBg: "#F7F8FC",
-    toastBg: "#1A1A2E",
-    toastText: "#FFFFFF",
 };
 
 const DARK: ThemeColors = {
     bg: "#0F1117",
-    bgSecondary: "#1A1D2E",
-    white: "#1A1D2E",
-    text: "#E8E9F0",
-    textSecondary: "#C4C6D4",
+    white: "#1E2235",
+    text: "#F8FAFC",
     muted: "#6B6F8A",
     border: "#2A2D42",
     green: "#00D9A5",
@@ -84,11 +68,6 @@ const DARK: ThemeColors = {
     yellowLight: "#2E2610",
     teal: "#22D3EE",
     tealLight: "#0D2830",
-    cardShadow: "0 2px 16px rgba(0,0,0,0.3)",
-    overlayBg: "rgba(0,0,0,0.65)",
-    inputBg: "#141726",
-    toastBg: "#E8E9F0",
-    toastText: "#0F1117",
 };
 
 interface ThemeContextType {
@@ -120,6 +99,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (mounted) {
             localStorage.setItem('stokly-theme', mode);
+            document.documentElement.setAttribute('data-theme', mode);
         }
     }, [mode, mounted]);
 
@@ -127,8 +107,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const C = mode === 'light' ? LIGHT : DARK;
 
+    // Generate CSS variables output
+    const cssVariables = Object.entries(C)
+        .map(([key, value]) => `--${key}: ${value};`)
+        .join('\n');
+
     return (
         <ThemeContext.Provider value={{ mode, C, toggleTheme }}>
+            <style>{`
+        :root {
+          ${cssVariables}
+          --card-shadow: ${mode === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : '0 4px 16px rgba(0,0,0,0.3)'};
+          --overlay-bg: ${mode === 'light' ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.7)'};
+        }
+        
+        body {
+            background-color: var(--bg) !important;
+            color: var(--text) !important;
+        }
+      `}</style>
             {children}
         </ThemeContext.Provider>
     );
