@@ -254,12 +254,13 @@ export default function DashboardPage() {
       {/* BOTTOM NAV */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: C.white, borderTop: "1.5px solid " + C.border, padding: "8px 4px 14px", display: "flex", justifyContent: "center", zIndex: 60, boxShadow: "0 -2px 12px rgba(0,0,0,0.04)" }}>
         <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
-        {TABS.map(t => (
-          <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
-            <span style={{ fontSize: 20 }}>{t.emoji}</span>
-            <span style={{ fontSize: 9, fontWeight: 800, color: tab === t.id ? C.green : C.muted }}>{t.label}</span>
-          </button>
-        ))}
+          {TABS.map(t => (
+            <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
+              <span style={{ fontSize: 20 }}>{t.emoji}</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: tab === t.id ? C.green : C.muted }}>{t.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {modal === "product" && <AddProductModal onClose={() => setModal(null)} onSave={() => { setModal(null); showToast("✅ Producto agregado (Refresca)"); }} />}
