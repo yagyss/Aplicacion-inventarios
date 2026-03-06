@@ -98,6 +98,7 @@ export default function DashboardLayout({
                         </button>
                     </div>
                 </aside>
+            )}
 
             {/* Mobile Header */}
             {pathname !== '/dashboard' && (
